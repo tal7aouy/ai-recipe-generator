@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Creator and Meal Planner</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 p-8">
+    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
+      <h1 class="text-3xl font-bold mb-8 text-center text-indigo-600">
+        Recipe Creator and Meal Planner
+      </h1>
+
+      <div class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4 text-indigo-800">
+          Create a Recipe
+        </h2>
+        <form id="recipe-form" class="space-y-4">
+          <div>
+            <label
+              for="ingredients"
+              class="block text-sm font-medium text-gray-700"
+              >Ingredients</label
+            >
+            <input
+              type="text"
+              id="ingredients"
+              name="ingredients"
+              placeholder="Enter ingredients (comma-separated)"
+              required
+              class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          <div>
+            <label for="cuisine" class="block text-sm font-medium text-gray-700"
+              >Cuisine Style</label
+            >
+            <select
+              id="cuisine"
+              name="cuisine"
+              required
+              class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+            >
+              <option value="">Select a cuisine</option>
+              <option value="Italian">Italian</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Mexican">Mexican</option>
+              <option value="Indian">Indian</option>
+              <option value="Japanese">Japanese</option>
+              <option value="French">French</option>
+              <option value="Thai">Thai</option>
+              <option value="Greek">Greek</option>
+              <option value="Spanish">Spanish</option>
+              <option value="American">American</option>
+            </select>
+          </div>
+          <div>
+            <label
+              for="dietary_restrictions"
+              class="block text-sm font-medium text-gray-700"
+              >Dietary Restrictions</label
+            >
+            <select
+              id="dietary_restrictions"
+              name="dietary_restrictions"
+              multiple
+              class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+            >
+              <option value="Vegetarian">Vegetarian</option>
+              <option value="Vegan">Vegan</option>
+              <option value="Gluten-free">Gluten-free</option>
+              <option value="Dairy-free">Dairy-free</option>
+              <option value="Nut-free">Nut-free</option>
+              <option value="Low-carb">Low-carb</option>
+              <option value="Keto">Keto</option>
+              <option value="Paleo">Paleo</option>
+            </select>
+            <p class="text-sm text-gray-500 mt-1">
+              Hold Ctrl (Cmd on Mac) to select multiple
+            </p>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition duration-300"
+          >
+            Create Recipe
+          </button>
+        </form>
+        <div id="recipe-result" class="mt-4 p-4 bg-gray-100 rounded"></div>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-semibold mb-4 text-indigo-800">
+          Create a Meal Plan
+        </h2>
+        <form id="meal-plan-form" class="space-y-4">
+          <input
+            type="number"
+            name="days"
+            placeholder="Number of days"
+            required
+            class="w-full p-2 border border-gray-300 rounded"
+          />
+          <input
+            type="text"
+            name="dietary_preferences"
+            placeholder="Dietary preferences"
+            required
+            class="w-full p-2 border border-gray-300 rounded"
+          />
+          <input
+            type="number"
+            name="calories"
+            placeholder="Daily calorie target"
+            required
+            class="w-full p-2 border border-gray-300 rounded"
+          />
+          <button
+            type="submit"
+            class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition duration-300"
+          >
+            Create Meal Plan
+          </button>
+        </form>
+        <div id="meal-plan-result" class="mt-4 p-4 bg-gray-100 rounded"></div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        function showLoading(elementId) {
+          $(`#${elementId}`).html('<p class="text-center">Loading...</p>')
+        }
+
+        $("#recipe-form").submit(function (e) {
+          e.preventDefault()
+          showLoading("recipe-result")
+          var formData = $(this).serializeArray()
+          var dietaryRestrictions = $("#dietary_restrictions").val().join(", ")
+          formData.push({
+            name: "dietary_restrictions",
+            value: dietaryRestrictions,
+          })
+          $.post("/create_recipe", $.param(formData), function (data) {
+            $("#recipe-result").html(
+              `<p class="whitespace-pre-wrap">${data.recipe}</p>`
+            )
+          })
+        })
+
+        $("#meal-plan-form").submit(function (e) {
+          e.preventDefault()
+          showLoading("meal-plan-result")
+          $.post("/create_meal_plan", $(this).serialize(), function (data) {
+            $("#meal-plan-result").html(
+              `<p class="whitespace-pre-wrap">${data.meal_plan}</p>`
+            )
+          })
+        })
+      })
+    </script>
+  </body>
+</html>
